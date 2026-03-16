@@ -1,53 +1,73 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const SK = 'voyage_trips_data';
+    const SK = 'voyage_trips_data_v3';
     let currentTripId = localStorage.getItem('last_trip_id') || null;
 
-    // Funções de utilidade
     const el = id => document.getElementById(id);
-    const getDays = ds => {
-        if (!ds) return '--';
-        const t = new Date().setHours(0,0,0,0);
-        const g = new Date(ds + 'T00:00:00').setHours(0,0,0,0);
-        return Math.round((g - t) / 86400000);
-    };
+
+    // Função para calcular dias restantes
+    function getDays(dateString) {
+        if (!dateString) return '--';
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const target = new Date(dateString + 'T00:00:00');
+        target.setHours(0, 0, 0, 0);
+        const diff = Math.round((target - today) / (1000 * 60 * 60 * 24));
+        return diff < 0 ? "0" : diff;
+    }
+
+    // Formata data de YYYY-MM-DD para DD/MM/YY
+    function formatDate(ds) {
+        if (!ds) return '--/--/--';
+        const [y, m, d] = ds.split('-');
+        return `${d}/${m}/${y.slice(-2)}`;
+    }
 
     function render() {
         const trips = JSON.parse(localStorage.getItem(SK) || '{}');
         const ids = Object.keys(trips);
         
         if (!currentTripId && ids.length > 0) currentTripId = ids[0];
-        renderTabs(trips);
+        if (ids.length === 0) {
+            openModal(false);
+            return;
+        }
 
         const t = trips[currentTripId];
-        if (!t) return;
+        const daysGo = getDays(t.dateGo);
 
-        // Preenche campos do Ticket
+        // --- ATUALIZA LAYOUT 1 (Boarding Pass) ---
         el('l1-origin').textContent = (t.originCode || '---').toUpperCase();
         el('l1-dest').textContent = (t.destCode || '---').toUpperCase();
-        el('l1-flight').textContent = t.flight || '--';
-        el('l1-gate').textContent = t.gate || '--';
-        el('l1-class-det').textContent = (t.classType || 'ECONOMY').toUpperCase();
+        el('l1-flight').textContent = (t.flight || '--').toUpperCase();
+        el('l1-gate-det').textContent = (t.gate || '--').toUpperCase();
+        el('l1-seat-main').textContent = (t.seat || '--').toUpperCase();
         el('l1-badge-class').textContent = (t.classType || 'ECONOMY').toUpperCase();
-        el('l1-seat-main').textContent = t.seat || '--';
-        el('l1-days-go').textContent = getDays(t.dateGo);
-        el('l1-dest-full').textContent = t.tripName || '--';
-        el('l1-date-go-txt').textContent = t.dateGo || '--';
+        el('l1-days-go').textContent = daysGo;
+        el('l1-date-go').textContent = formatDate(t.dateGo);
+        el('l1-date-ret').textContent = formatDate(t.dateRet);
 
-        // Processa Passageiros
+        // Lista de Passageiros L1
         const list = el('l1-pnames-list');
         list.innerHTML = '';
-        const pLines = (t.passengers || '').split('\n').filter(l => l.trim() !== '');
-        
-        pLines.forEach(line => {
-            const parts = line.split('-');
-            const nome = parts[0] ? parts[0].trim() : 'Passageiro';
-            const assento = parts[1] ? parts[1].trim() : '--';
-            
-            const div = document.createElement('div');
-            div.className = 'l1-prow';
-            div.innerHTML = `<span>${nome}</span><span class="p-seat">${assento}</span>`;
-            list.appendChild(div);
+        const lines = (t.passengers || '').split('\n').filter(l => l.trim() !== '');
+        lines.forEach(line => {
+            const [nome, assento] = line.split('-').map(s => s.trim());
+            list.innerHTML += `
+                <div class="l1-prow">
+                    <span>${nome || 'Passageiro'}</span>
+                    <span class="p-seat">${assento || '--'}</span>
+                </div>`;
         });
+
+        // --- ATUALIZA LAYOUT 2 (Neon) ---
+        el('l2-dest-city').textContent = (t.tripName || 'DESTINATION').toUpperCase();
+        el('l2-days-go').textContent = daysGo;
+
+        // --- ATUALIZA LAYOUT 3 (Golden) ---
+        el('l3-trip-name').textContent = t.tripName || 'My Voyage';
+        el('l3-days-go').textContent = daysGo;
+
+        renderTabs(trips);
     }
 
     function renderTabs(trips) {
@@ -56,18 +76,23 @@ document.addEventListener('DOMContentLoaded', function () {
         Object.keys(trips).forEach(id => {
             const btn = document.createElement('button');
             btn.className = 'trip-tab' + (id === currentTripId ? ' active' : '');
-            btn.textContent = trips[id].tripName;
-            btn.onclick = () => { currentTripId = id; localStorage.setItem('last_trip_id', id); render(); };
+            btn.textContent = trips[id].tripName || 'Trip';
+            btn.onclick = () => { 
+                currentTripId = id; 
+                localStorage.setItem('last_trip_id', id); 
+                render(); 
+            };
             container.appendChild(btn);
         });
+
         const add = document.createElement('button');
         add.className = 'trip-tab-add';
         add.textContent = '+';
-        add.onclick = () => openModal();
+        add.onclick = () => openModal(false);
         container.appendChild(add);
     }
 
-    function openModal(isEdit = false) {
+    window.openModal = function(isEdit) {
         const trips = JSON.parse(localStorage.getItem(SK) || '{}');
         const t = isEdit ? trips[currentTripId] : {};
 
@@ -79,16 +104,17 @@ document.addEventListener('DOMContentLoaded', function () {
         el('inp-gate').value = t.gate || '';
         el('inp-seat').value = t.seat || '';
         el('inp-date-go').value = t.dateGo || '';
+        el('inp-date-ret').value = t.dateRet || '';
         el('inp-passengers').value = t.passengers || '';
 
-        el('modalOverlay').classList.add('open');
         el('deleteBtn').style.display = isEdit ? 'block' : 'none';
-    }
+        el('modalOverlay').classList.add('open');
+    };
 
     el('saveBtn').onclick = () => {
         const trips = JSON.parse(localStorage.getItem(SK) || '{}');
-        const id = currentTripId && el('deleteBtn').style.display === 'block' ? currentTripId : Date.now().toString();
-        
+        const id = el('deleteBtn').style.display === 'block' ? currentTripId : Date.now().toString();
+
         trips[id] = {
             tripName: el('inp-tripname').value,
             originCode: el('inp-ocode').value,
@@ -98,26 +124,37 @@ document.addEventListener('DOMContentLoaded', function () {
             gate: el('inp-gate').value,
             seat: el('inp-seat').value,
             dateGo: el('inp-date-go').value,
+            dateRet: el('inp-date-ret').value,
             passengers: el('inp-passengers').value
         };
 
         localStorage.setItem(SK, JSON.stringify(trips));
         currentTripId = id;
+        localStorage.setItem('last_trip_id', id);
         el('modalOverlay').classList.remove('open');
         render();
     };
 
-    el('editBtn').onclick = () => openModal(true);
-    el('closeModal').onclick = () => el('modalOverlay').classList.remove('open');
-    
     el('deleteBtn').onclick = () => {
-        const trips = JSON.parse(localStorage.getItem(SK) || '{}');
-        delete trips[currentTripId];
-        localStorage.setItem(SK, JSON.stringify(trips));
-        currentTripId = null;
-        el('modalOverlay').classList.remove('open');
-        render();
+        if(confirm('Apagar esta viagem?')) {
+            const trips = JSON.parse(localStorage.getItem(SK) || '{}');
+            delete trips[currentTripId];
+            localStorage.setItem(SK, JSON.stringify(trips));
+            currentTripId = Object.keys(trips)[0] || null;
+            el('modalOverlay').classList.remove('open');
+            render();
+        }
     };
+
+    // Alternador de Layouts
+    [1, 2, 3].forEach(n => {
+        el(`sw${n}`).onclick = () => {
+            document.querySelectorAll('.widget-wrap').forEach(w => w.classList.remove('active'));
+            document.querySelectorAll('.sw-btn').forEach(b => b.classList.remove('active'));
+            el(`layout${n}`).classList.add('active');
+            el(`sw${n}`).classList.add('active');
+        };
+    });
 
     render();
 });
