@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Voyage — Countdown</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{background:#0e0e0e;min-height:100vh;display:flex;flex-direction:column;align-items:center;font-family:'Space Mono',monospace;padding:16px 16px 50px}
+
+/* ── TOP BAR ── */
+.topbar{width:100%;max-width:430px;display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.trip-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.trip-tab{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.4);font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.14em;padding:6px 12px;border-radius:30px;cursor:pointer;transition:all .2s;white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis}
+.trip-tab.active{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.3);color:#fff}
+.trip-tab:hover{color:#fff}
+.trip-tab-add{background:none;border:1px dashed rgba(255,255,255,.15);color:rgba(255,255,255,.3);font-family:'Space Mono',monospace;font-size:16px;padding:2px 12px;border-radius:30px;cursor:pointer;transition:all .2s;line-height:1.6}
+.trip-tab-add:hover{color:#fff;border-color:rgba(255,255,255,.4)}
+.switcher{display:flex;gap:6px;flex-wrap:wrap}
+.sw-btn{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.35);font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.18em;padding:6px 12px;border-radius:30px;cursor:pointer;transition:all .25s}
+.sw-btn.active{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.3);color:#fff}
+.sw-btn:hover{color:#fff}
+
+/* ── WIDGET ── */
+.widget-wrap{width:100%;max-width:420px;display:none;animation:fadeUp .4s ease forwards}
+.widget-wrap.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* ════════ L1 — BOARDING PASS ════════ */
+.l1-ticket{background:#faf7f2;border-radius:18px 18px 0 0;padding:24px 22px 18px;position:relative;overflow:hidden;box-shadow:0 0 0 1px rgba(201,168,76,.18),0 28px 56px rgba(0,0,0,.6)}
+.l1-ticket::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,#c9a84c,#e8c97a,#c9a84c,transparent)}
+.l1-noise{position:absolute;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E")}
+.l1-ticket>*{position:relative;z-index:1}
+.l1-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
+.l1-brand{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:10px;letter-spacing:.4em;color:#b8a98a;text-transform:uppercase}
+.l1-badge{font-size:8px;letter-spacing:.16em;color:#c9a84c;border:1px solid rgba(201,168,76,.55);padding:3px 8px}
+.l1-route{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:18px}
+.l1-apt-code{font-family:'Playfair Display',serif;font-size:44px;font-weight:700;color:#0d0d0d;line-height:1;letter-spacing:-2px}
+.l1-apt-city{font-size:8px;letter-spacing:.16em;color:#b8a98a;text-transform:uppercase;margin-top:2px}
+.l1-apt-r{text-align:right}
+.l1-mid{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:0 6px}
+.l1-plane{font-size:16px;animation:floatplane 3s ease-in-out infinite}
+@keyframes floatplane{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-4px) rotate(2deg)}}
+.l1-dash{width:100%;height:1px;background:repeating-linear-gradient(90deg,#c9a84c 0,#c9a84c 4px,transparent 4px,transparent 8px);opacity:.35}
+.l1-counts{display:flex;border-top:1px dashed rgba(184,169,138,.28);border-bottom:1px dashed rgba(184,169,138,.28);margin-bottom:16px}
+.l1-count-block{flex:1;text-align:center;padding:12px 6px}
+.l1-count-block:first-child{border-right:1px dashed rgba(184,169,138,.22)}
+.l1-clbl{font-size:7px;letter-spacing:.32em;color:#b8a98a;text-transform:uppercase;margin-bottom:7px}
+.l1-num{font-family:'Playfair Display',serif;font-size:58px;font-weight:700;color:#0d0d0d;line-height:1;letter-spacing:-3px;position:relative;display:inline-block}
+.l1-num::after{content:'';position:absolute;bottom:5px;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#c9a84c,transparent);opacity:.45}
+.l1-unit{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:#b8a98a;vertical-align:bottom;padding-bottom:9px;margin-left:2px}
+.l1-status{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:10px;color:#b8a98a;min-height:13px;margin-top:3px}
+.l1-prog{width:75%;margin:6px auto 0;height:2px;background:rgba(184,169,138,.14);border-radius:2px;overflow:hidden}
+.l1-prog-fill{height:100%;background:linear-gradient(90deg,#c9a84c,#e8c97a);box-shadow:0 0 5px rgba(201,168,76,.38);transition:width 1s ease}
+.l1-passengers{margin-bottom:12px}
+.l1-pass-lbl{font-size:7px;letter-spacing:.28em;color:#b8a98a;text-transform:uppercase;margin-bottom:4px}
+.l1-pnames{font-family:'Cormorant Garamond',serif;font-size:14px;color:#0d0d0d;line-height:1.5;white-space:pre-line}
+.l1-details{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px}
+.l1-det-lbl{font-size:7px;letter-spacing:.22em;color:#b8a98a;text-transform:uppercase}
+.l1-det-val{font-size:11px;color:#0d0d0d;margin-top:2px}
+.l1-det-c{text-align:center}.l1-det-r{text-align:right}
+.l1-tear{display:flex;align-items:center}
+.l1-tc{width:20px;height:20px;border-radius:50%;background:#0e0e0e;flex-shrink:0}
+.l1-tl{flex:1;height:2px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.08) 0,rgba(255,255,255,.08) 7px,transparent 7px,transparent 13px);margin:0 -2px}
+.l1-stub{background:#0d0d0d;border-radius:0 0 18px 18px;padding:14px 22px 18px;box-shadow:0 0 0 1px rgba(201,168,76,.07),0 20px 48px rgba(0,0,0,.6);position:relative;overflow:hidden}
+.l1-stub::before{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.2),transparent)}
+.l1-stub-row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.l1-slbl{font-size:7px;letter-spacing:.28em;color:rgba(184,169,138,.4);text-transform:uppercase;margin-bottom:3px}
+.l1-sval{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:#f5f0e8}
+.l1-sval-gold{font-family:'Cormorant Garamond',serif;font-size:13px;color:#c9a84c;margin-top:1px}
+.l1-glbl{font-size:7px;letter-spacing:.28em;color:rgba(184,169,138,.4);text-transform:uppercase;margin-bottom:3px;text-align:right}
+.l1-gval{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#c9a84c;text-align:right}
+.l1-barcode{display:flex;gap:2px;align-items:flex-end;margin-top:10px;opacity:.17}
+.l1-bar{background:#f5f0e8;width:2px;border-radius:1px}
+.edit-btn{display:block;width:100%;margin-top:10px;background:none;border:1px solid rgba(201,168,76,.16);border-radius:6px;cursor:pointer;color:rgba(184,169,138,.42);font-size:9px;letter-spacing:.2em;font-family:'Space Mono',monospace;padding:9px;text-align:center;transition:all .2s}
+.edit-btn:hover{color:#c9a84c;border-color:rgba(201,168,76,.42);background:rgba(201,168,76,.04)}
+
+/* ════════ L2 — NEON TOKYO ════════ */
+.l2-card{background:#070a12;border:1px solid rgba(0,255,200,.11);border-radius:16px;padding:24px 20px 20px;position:relative;overflow:hidden;box-shadow:0 0 55px rgba(0,255,200,.05),0 30px 60px rgba(0,0,0,.75)}
+.l2-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(0,255,200,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,200,.02) 1px,transparent 1px);background-size:32px 32px}
+.l2-scan{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(0,255,200,.38),transparent);animation:scan2 4s linear infinite;pointer-events:none}
+@keyframes scan2{0%{top:-2px}100%{top:100%}}
+.l2-topline{position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#00ffc8,#0af,transparent)}
+.l2-card>*{position:relative;z-index:1}
+.l2-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.l2-brand{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.2em;color:#00ffc8;text-shadow:0 0 18px rgba(0,255,200,.55)}
+.l2-tag{font-size:8px;letter-spacing:.2em;color:rgba(0,255,200,.45);border:1px solid rgba(0,255,200,.17);padding:3px 10px;border-radius:2px}
+.l2-dlbl{font-size:8px;letter-spacing:.38em;color:rgba(0,255,200,.38);text-transform:uppercase;margin-bottom:4px}
+.l2-dname{font-family:'Bebas Neue',sans-serif;font-size:38px;color:#fff;letter-spacing:.04em;line-height:1;text-shadow:0 0 26px rgba(255,255,255,.1);margin-bottom:8px}
+.l2-route{display:flex;gap:8px;align-items:center;margin-bottom:18px}
+.l2-code{font-family:'Space Mono',monospace;font-size:13px;color:rgba(0,255,200,.7);letter-spacing:.1em}
+.l2-arrow{flex:1;text-align:center;font-size:10px;color:rgba(0,255,200,.26)}
+.l2-counts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(0,255,200,.06)}
+.l2-count-block{background:#070a12;padding:18px 12px 14px;text-align:center}
+.l2-clbl{font-size:7px;letter-spacing:.4em;color:rgba(0,255,200,.35);text-transform:uppercase;margin-bottom:10px}
+.l2-bnum{font-family:'Bebas Neue',sans-serif;font-size:76px;line-height:1;color:#fff;text-shadow:0 0 32px rgba(0,255,200,.26),0 0 65px rgba(0,255,200,.09);letter-spacing:2px}
+.l2-bnum.small{font-size:52px}
+.l2-bunit{font-size:8px;letter-spacing:.4em;color:rgba(0,255,200,.42);text-transform:uppercase;margin-top:2px}
+.l2-bstatus{font-size:10px;color:rgba(0,255,200,.42);min-height:13px;margin-top:5px;letter-spacing:.07em}
+.l2-prog{width:100%;height:2px;background:rgba(0,255,200,.06)}
+.l2-prog-fill{height:100%;background:linear-gradient(90deg,#00ffc8,#0af);box-shadow:0 0 9px rgba(0,255,200,.52);transition:width 1s ease}
+.l2-info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin:16px 0 12px}
+.l2-ilbl{font-size:7px;letter-spacing:.26em;color:rgba(0,255,200,.28);text-transform:uppercase;margin-bottom:3px}
+.l2-ival{font-family:'Space Mono',monospace;font-size:11px;color:rgba(255,255,255,.73)}
+.l2-ic{text-align:center}.l2-ir{text-align:right}
+.l2-plbl{font-size:7px;letter-spacing:.3em;color:rgba(0,255,200,.28);text-transform:uppercase;margin-bottom:3px}
+.l2-pnames{font-family:'Outfit',sans-serif;font-size:14px;font-weight:500;color:#fff;letter-spacing:.03em;margin-bottom:14px;line-height:1.5;white-space:pre-line}
+.edit-btn-neon{background:none;border:1px solid rgba(0,255,200,.13);border-radius:4px;cursor:pointer;color:rgba(0,255,200,.36);font-size:9px;letter-spacing:.2em;font-family:'Space Mono',monospace;padding:9px 16px;width:100%;transition:all .2s}
+.edit-btn-neon:hover{color:#00ffc8;border-color:rgba(0,255,200,.45);background:rgba(0,255,200,.04)}
+
+/* ════════ L3 — GOLDEN HOUR ════════ */
+.l3-card{background:linear-gradient(150deg,#1c1408 0%,#100e08 55%,#141008 100%);border-radius:20px;padding:22px 20px 20px;position:relative;overflow:hidden;box-shadow:0 0 0 1px rgba(232,180,80,.1),0 36px 72px rgba(0,0,0,.75)}
+.l3-orb1{position:absolute;top:-60px;right:-45px;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle,rgba(232,180,80,.1) 0%,transparent 70%);pointer-events:none}
+.l3-orb2{position:absolute;bottom:-80px;left:-30px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(192,100,40,.07) 0%,transparent 70%);pointer-events:none}
+.l3-card>*{position:relative;z-index:1}
+.l3-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.l3-brand{font-family:'DM Serif Display',serif;font-style:italic;font-size:15px;color:rgba(232,180,80,.55)}
+.l3-dot{width:7px;height:7px;border-radius:50%;background:#e8b450;box-shadow:0 0 10px rgba(232,180,80,.72);animation:dotpulse 2s ease-in-out infinite}
+@keyframes dotpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.35)}}
+.l3-main-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}
+.l3-dest-col{flex:1;min-width:0}
+.l3-going{font-size:7px;letter-spacing:.44em;color:rgba(232,180,80,.28);text-transform:uppercase;margin-bottom:5px}
+.l3-dname{font-family:'DM Serif Display',serif;font-size:26px;color:#f5ead0;line-height:1.18}
+.l3-dname em{color:#e8b450;font-style:italic}
+.l3-counts-col{display:flex;flex-direction:column;gap:8px;align-items:flex-end;flex-shrink:0}
+.l3-count-item{text-align:right}
+.l3-clbl{font-size:7px;letter-spacing:.36em;color:rgba(232,180,80,.28);text-transform:uppercase;margin-bottom:2px}
+.l3-num-row{display:flex;align-items:baseline;gap:4px;justify-content:flex-end}
+.l3-num{font-family:'DM Serif Display',serif;font-size:48px;color:#f5ead0;line-height:1;letter-spacing:-2px}
+.l3-unit{font-size:8px;letter-spacing:.36em;color:rgba(232,180,80,.36);text-transform:uppercase;padding-bottom:5px}
+.l3-status{font-family:'DM Serif Display',serif;font-style:italic;font-size:9px;color:rgba(232,180,80,.4);min-height:11px;margin-top:1px}
+.l3-div{width:100%;height:1px;background:linear-gradient(90deg,rgba(232,180,80,.15),transparent);margin-bottom:10px}
+.l3-prog{width:100%;height:1px;background:rgba(232,180,80,.1);margin-bottom:10px;overflow:hidden}
+.l3-prog-fill{height:100%;background:linear-gradient(90deg,#e8b450,rgba(232,180,80,.28));transition:width 1s ease}
+.l3-plbl{font-size:7px;letter-spacing:.34em;color:rgba(232,180,80,.26);text-transform:uppercase;margin-bottom:3px}
+.l3-pnames{font-family:'DM Serif Display',serif;font-size:15px;color:#f5ead0;margin-bottom:12px;line-height:1.45;white-space:pre-line}
+.l3-meta{display:flex;justify-content:space-between;margin-bottom:12px}
+.l3-mi{display:flex;flex-direction:column;gap:3px}
+.l3-mi:nth-child(2){align-items:center}.l3-mi:nth-child(3){align-items:flex-end}
+.l3-mlbl{font-size:7px;letter-spacing:.33em;color:rgba(232,180,80,.26);text-transform:uppercase}
+.l3-mval{font-family:'DM Serif Display',serif;font-size:13px;color:rgba(245,234,208,.78)}
+.l3-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid rgba(232,180,80,.07)}
+.l3-date-disp{font-size:10px;letter-spacing:.07em;color:rgba(232,180,80,.38)}
+.edit-btn-gold{background:none;border:none;cursor:pointer;font-family:'DM Serif Display',serif;font-style:italic;font-size:14px;color:rgba(232,180,80,.36);transition:color .2s}
+.edit-btn-gold:hover{color:#e8b450}
+
+/* ════════ MODAL ════════ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);backdrop-filter:blur(14px);z-index:9999;display:none;align-items:center;justify-content:center;padding:14px}
+.modal-overlay.open{display:flex}
+.modal{background:#f7f3ec;border-radius:18px;padding:26px 20px 22px;width:100%;max-width:370px;position:relative;border-top:3px solid #c9a84c;box-shadow:0 40px 80px rgba(0,0,0,.95);max-height:93vh;overflow-y:auto}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-style:italic;color:#0d0d0d;margin-bottom:16px}
+.modal-section{font-size:8px;letter-spacing:.32em;text-transform:uppercase;color:#c9a84c;margin:14px 0 9px;padding-bottom:5px;border-bottom:1px solid rgba(201,168,76,.18)}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.field label{font-size:8px;letter-spacing:.28em;text-transform:uppercase;color:#b8a98a;font-family:'Space Mono',monospace}
+.field input,.field textarea{background:rgba(184,169,138,.09);border:1px solid rgba(184,169,138,.2);border-radius:8px;padding:9px 12px;font-family:'Space Mono',monospace;font-size:12px;color:#0d0d0d;outline:none;transition:border-color .2s;resize:none}
+.field input:focus,.field textarea:focus{border-color:#c9a84c;background:rgba(201,168,76,.04)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.modal-actions{display:flex;gap:8px;margin-top:14px}
+.save-btn{flex:1;padding:12px;background:#0d0d0d;color:#c9a84c;border:1px solid rgba(201,168,76,.2);border-radius:10px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.26em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.save-btn:hover{background:#c9a84c;color:#0d0d0d}
+.delete-btn{padding:12px 14px;background:none;color:rgba(192,57,43,.48);border:1px solid rgba(192,57,43,.18);border-radius:10px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.18em;cursor:pointer;transition:all .2s}
+.delete-btn:hover{background:rgba(192,57,43,.07);color:rgba(192,57,43,.75);border-color:rgba(192,57,43,.38)}
+.modal-close{position:absolute;top:13px;right:17px;background:none;border:none;font-size:22px;color:#b8a98a;cursor:pointer;line-height:1}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="trip-tabs" id="tripTabs"></div>
+  <div class="switcher">
+    <button class="sw-btn active" id="sw1">&#10022; Boarding Pass</button>
+    <button class="sw-btn" id="sw2">&#11041; Neon Tokyo</button>
+    <button class="sw-btn" id="sw3">&#9678; Golden Hour</button>
+  </div>
+</div>
+
+<!-- LAYOUT 1 -->
+<div class="widget-wrap active" id="layout1">
+  <div class="l1-ticket">
+    <div class="l1-noise"></div>
+    <div class="l1-header">
+      <div class="l1-brand">Voyage &middot; Countdown</div>
+      <div class="l1-badge">FIRST CLASS</div>
+    </div>
+    <div class="l1-route">
+      <div>
+        <div class="l1-apt-code" id="l1-origin">GRU</div>
+        <div class="l1-apt-city" id="l1-ocity">Sao Paulo</div>
+      </div>
+      <div class="l1-mid">
+        <div class="l1-plane">&#9992;</div>
+        <div class="l1-dash"></div>
+      </div>
+      <div class="l1-apt-r">
+        <div class="l1-apt-code" id="l1-dest">CDG</div>
+        <div class="l1-apt-city" id="l1-dcity">Paris</div>
+      </div>
+    </div>
+    <div class="l1-counts">
+      <div class="l1-count-block">
+        <div class="l1-clbl">&#9992; ida</div>
+        <div><span class="l1-num" id="l1-days-go">47</span><span class="l1-unit">dias</span></div>
+        <div class="l1-status" id="l1-status-go"></div>
+        <div class="l1-prog"><div class="l1-prog-fill" id="l1-prog-go" style="width:0%"></div></div>
+      </div>
+      <div class="l1-count-block">
+        <div class="l1-clbl">&#8617; volta</div>
+        <div><span class="l1-num" id="l1-days-ret">--</span><span class="l1-unit" id="l1-unit-ret">dias</span></div>
+        <div class="l1-status" id="l1-status-ret"></div>
+        <div class="l1-prog"><div class="l1-prog-fill" id="l1-prog-ret" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div class="l1-passengers">
+      <div class="l1-pass-lbl">passageiros</div>
+      <div class="l1-pnames" id="l1-pnames">Joao Silva</div>
+    </div>
+    <div class="l1-details">
+      <div><div class="l1-det-lbl">Voo</div><div class="l1-det-val" id="l1-flight">AF 457</div></div>
+      <div class="l1-det-c"><div class="l1-det-lbl">Classe</div><div class="l1-det-val">FIRST</div></div>
+      <div class="l1-det-r"><div class="l1-det-lbl">Assento</div><div class="l1-det-val" id="l1-seat">1A</div></div>
+    </div>
+  </div>
+  <div class="l1-tear"><div class="l1-tc"></div><div class="l1-tl"></div><div class="l1-tc"></div></div>
+  <div class="l1-stub">
+    <div class="l1-stub-row">
+      <div>
+        <div class="l1-slbl">Partida</div><div class="l1-sval" id="l1-date-go-txt">--</div>
+        <div class="l1-slbl" style="margin-top:7px">Retorno</div><div class="l1-sval" id="l1-date-ret-txt" style="font-size:13px">--</div>
+        <div class="l1-slbl" st
