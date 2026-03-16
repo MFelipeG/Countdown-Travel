@@ -227,4 +227,126 @@ body{background:#0e0e0e;min-height:100vh;display:flex;flex-direction:column;alig
       <div>
         <div class="l1-slbl">Partida</div><div class="l1-sval" id="l1-date-go-txt">--</div>
         <div class="l1-slbl" style="margin-top:7px">Retorno</div><div class="l1-sval" id="l1-date-ret-txt" style="font-size:13px">--</div>
-        <div class="l1-slbl" st
+        <div class="l1-slbl" style="margin-top:7px">Destino</div><div class="l1-sval-gold" id="l1-dest-full">Paris, Franca</div>
+      </div>
+      <div><div class="l1-glbl">Portao</div><div class="l1-gval" id="l1-gate">B7</div></div>
+    </div>
+    <div class="l1-barcode" id="l1-barcode"></div>
+    <button class="edit-btn" id="edit1">&#10022; editar viagem</button>
+  </div>
+</div>
+
+<!-- LAYOUT 2 -->
+<div class="widget-wrap" id="layout2">
+  <div class="l2-card">
+    <div class="l2-grid"></div>
+    <div class="l2-scan"></div>
+    <div class="l2-topline"></div>
+    <div class="l2-header"><div class="l2-brand">VOYAGE</div><div class="l2-tag">COUNTDOWN</div></div>
+    <div class="l2-dlbl">destino</div>
+    <div class="l2-dname" id="l2-dname">Paris, Franca</div>
+    <div class="l2-route">
+      <div class="l2-code" id="l2-origin">GRU</div>
+      <div class="l2-arrow">-- &#9992; --</div>
+      <div class="l2-code" id="l2-dest">CDG</div>
+    </div>
+    <div class="l2-counts">
+      <div class="l2-count-block">
+        <div class="l2-clbl">&#9992; ida</div>
+        <div class="l2-bnum" id="l2-days-go">47</div>
+        <div class="l2-bunit">dias</div>
+        <div class="l2-bstatus" id="l2-status-go"></div>
+      </div>
+      <div class="l2-count-block">
+        <div class="l2-clbl">&#8617; volta</div>
+        <div class="l2-bnum small" id="l2-days-ret">--</div>
+        <div class="l2-bunit">dias</div>
+        <div class="l2-bstatus" id="l2-status-ret"></div>
+      </div>
+    </div>
+    <div class="l2-prog"><div class="l2-prog-fill" id="l2-prog-go" style="width:0%"></div></div>
+    <div class="l2-info">
+      <div><div class="l2-ilbl">Voo</div><div class="l2-ival" id="l2-flight">AF 457</div></div>
+      <div class="l2-ic"><div class="l2-ilbl">Partida</div><div class="l2-ival" id="l2-date-go">--</div></div>
+      <div class="l2-ir"><div class="l2-ilbl">Portao</div><div class="l2-ival" id="l2-gate">B7</div></div>
+    </div>
+    <div class="l2-plbl">passageiros</div>
+    <div class="l2-pnames" id="l2-pnames">Joao Silva</div>
+    <button class="edit-btn-neon" id="edit2">[ &#10022; editar viagem ]</button>
+  </div>
+</div>
+
+<!-- LAYOUT 3 -->
+<div class="widget-wrap" id="layout3">
+  <div class="l3-card">
+    <div class="l3-orb1"></div>
+    <div class="l3-orb2"></div>
+    <div class="l3-top"><div class="l3-brand">Voyage</div><div class="l3-dot"></div></div>
+    <div class="l3-main-row">
+      <div class="l3-dest-col">
+        <div class="l3-going">proxima viagem</div>
+        <div class="l3-dname" id="l3-dname">Paris,<br><em>Franca</em></div>
+      </div>
+      <div class="l3-counts-col">
+        <div class="l3-count-item">
+          <div class="l3-clbl">&#9992; ida</div>
+          <div class="l3-num-row"><div class="l3-num" id="l3-days-go">47</div><div class="l3-unit">dias</div></div>
+          <div class="l3-status" id="l3-status-go"></div>
+        </div>
+        <div class="l3-count-item">
+          <div class="l3-clbl">&#8617; volta</div>
+          <div class="l3-num-row"><div class="l3-num" id="l3-days-ret" style="font-size:34px">--</div><div class="l3-unit" id="l3-unit-ret">dias</div></div>
+          <div class="l3-status" id="l3-status-ret"></div>
+        </div>
+      </div>
+    </div>
+    <div class="l3-div"></div>
+    <div class="l3-prog"><div class="l3-prog-fill" id="l3-prog-go" style="width:0%"></div></div>
+    <div class="l3-plbl">passageiros</div>
+    <div class="l3-pnames" id="l3-pnames">Joao Silva</div>
+    <div class="l3-meta">
+      <div class="l3-mi"><div class="l3-mlbl">Origem</div><div class="l3-mval" id="l3-origin">GRU</div></div>
+      <div class="l3-mi"><div class="l3-mlbl">Voo</div><div class="l3-mval" id="l3-flight">AF 457</div></div>
+      <div class="l3-mi"><div class="l3-mlbl">Destino</div><div class="l3-mval" id="l3-dcode">CDG</div></div>
+    </div>
+    <div class="l3-bottom">
+      <div class="l3-date-disp" id="l3-date-go-txt">--</div>
+      <button class="edit-btn-gold" id="edit3">&#10022; editar viagem</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" id="modalClose">&times;</button>
+    <div class="modal-title" id="modalTitle">Nova viagem</div>
+    <div class="modal-section">destino e rota</div>
+    <div class="field"><label>Nome da viagem</label><input type="text" id="inp-tripname" placeholder="Paris 2025" maxlength="22"></div>
+    <div class="field"><label>Destino completo</label><input type="text" id="inp-dest" placeholder="Paris, Franca" maxlength="30"></div>
+    <div class="field-row">
+      <div class="field"><label>Cod. origem</label><input type="text" id="inp-ocode" placeholder="GRU" maxlength="4"></div>
+      <div class="field"><label>Cidade origem</label><input type="text" id="inp-ocity" placeholder="Sao Paulo" maxlength="22"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Cod. destino</label><input type="text" id="inp-dcode" placeholder="CDG" maxlength="4"></div>
+      <div class="field"><label>Cidade destino</label><input type="text" id="inp-dcity" placeholder="Paris" maxlength="22"></div>
+    </div>
+    <div class="field"><label>Numero do voo</label><input type="text" id="inp-flight" placeholder="AF 0457" maxlength="12"></div>
+    <div class="modal-section">datas</div>
+    <div class="field-row">
+      <div class="field"><label>Ida</label><input type="date" id="inp-date-go"></div>
+      <div class="field"><label>Volta (opcional)</label><input type="date" id="inp-date-ret"></div>
+    </div>
+    <div class="modal-section">passageiros</div>
+    <div class="field"><label>Um nome por linha</label><textarea id="inp-passengers" rows="3" placeholder="Joao Silva&#10;Maria Souza"></textarea></div>
+    <div class="modal-actions">
+      <button class="save-btn" id="saveBtn">salvar</button>
+      <button class="delete-btn" id="deleteBtn" style="display:none">apagar viagem</button>
+    </div>
+  </div>
+</div>
+
+<script src="voyage.js"></script>
+</body>
+</html>
